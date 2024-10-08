@@ -1,13 +1,14 @@
+import vue from "@vitejs/plugin-vue";
 import { rmSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import electron from "vite-electron-plugin";
 import { customStart, loadViteEnv } from "vite-electron-plugin/plugin";
+import vueDevTools from "vite-plugin-vue-devtools";
 import pkg from "./package.json";
-import legacy from "@vitejs/plugin-legacy";
-import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
+
 // import visualizer from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
@@ -23,7 +24,8 @@ export default defineConfig(({ command }) => {
       },
     },
     plugins: [
-      react(),
+      vue(),
+      vueDevTools(),
       electron({
         include: ["electron"],
         transformOptions: {
