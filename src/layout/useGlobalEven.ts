@@ -1,5 +1,4 @@
-import { CbEvents } from "@openim/wasm-client-sdk";
-import { LogLevel, MessageType, SessionType } from "@openim/wasm-client-sdk";
+import { CbEvents, LogLevel, MessageType, SessionType } from "@openim/wasm-client-sdk";
 import {
   BlackUserItem,
   ConversationItem,
@@ -14,14 +13,14 @@ import {
   WsResponse,
 } from "@openim/wasm-client-sdk/lib/types/entity";
 import { t } from "i18next";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { storeToRefs } from "pinia";
+import { onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 
 import { getApiUrl, getWsUrl } from "@/config";
 import { CustomType } from "@/constants";
 import { pushNewMessage } from "@/pages/chat/queryChat/useHistoryMessageList";
-import { useConversationStore, useUserStore } from "@/store";
-import { useContactStore } from "@/store/contact";
+import { useContactStore, useConversationStore, useUserStore } from "@/store";
 import { feedbackToast } from "@/utils/common";
 import emitter from "@/utils/events";
 import { initStore } from "@/utils/imCommon";
@@ -30,82 +29,31 @@ import { clearIMProfile, getIMToken, getIMUserID } from "@/utils/storage";
 import { IMSDK } from "./MainContentWrap";
 
 export function useGlobalEvent() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const router = useRouter();
   // user
-  const syncState = useUserStore((state) => state.syncState);
-  const updateSyncState = useUserStore((state) => state.updateSyncState);
-  const updateProgressState = useUserStore((state) => state.updateProgressState);
-  const updateReinstallState = useUserStore((state) => state.updateReinstallState);
-  const updateIsLogining = useUserStore((state) => state.updateIsLogining);
-  const updateConnectState = useUserStore((state) => state.updateConnectState);
-  const updateSelfInfo = useUserStore((state) => state.updateSelfInfo);
-  const userLogout = useUserStore((state) => state.userLogout);
+  const userStore = useUserStore();
+  const { syncState, selfInfo } = storeToRefs(userStore);
   // conversation
-  const updateConversationList = useConversationStore(
-    (state) => state.updateConversationList,
-  );
-  const updateUnReadCount = useConversationStore((state) => state.updateUnReadCount);
-  const updateCurrentGroupInfo = useConversationStore(
-    (state) => state.updateCurrentGroupInfo,
-  );
-  const getCurrentGroupInfoByReq = useConversationStore(
-    (state) => state.getCurrentGroupInfoByReq,
-  );
-  const getCurrentMemberInGroupByReq = useConversationStore(
-    (state) => state.getCurrentMemberInGroupByReq,
-  );
-  const tryUpdateCurrentMemberInGroup = useConversationStore(
-    (state) => state.tryUpdateCurrentMemberInGroup,
-  );
-  const getConversationListByReq = useConversationStore(
-    (state) => state.getConversationListByReq,
-  );
-  const getUnReadCountByReq = useConversationStore(
-    (state) => state.getUnReadCountByReq,
-  );
-  // contact
-  const getFriendListByReq = useContactStore((state) => state.getFriendListByReq);
-  const getGroupListByReq = useContactStore((state) => state.getGroupListByReq);
-  const updateFriend = useContactStore((state) => state.updateFriend);
-  const pushNewFriend = useContactStore((state) => state.pushNewFriend);
-  const updateBlack = useContactStore((state) => state.updateBlack);
-  const pushNewBlack = useContactStore((state) => state.pushNewBlack);
-  const updateGroup = useContactStore((state) => state.updateGroup);
-  const pushNewGroup = useContactStore((state) => state.pushNewGroup);
-  const updateRecvFriendApplication = useContactStore(
-    (state) => state.updateRecvFriendApplication,
-  );
-  const updateSendFriendApplication = useContactStore(
-    (state) => state.updateSendFriendApplication,
-  );
-  const updateRecvGroupApplication = useContactStore(
-    (state) => state.updateRecvGroupApplication,
-  );
-  const updateSendGroupApplication = useContactStore(
-    (state) => state.updateSendGroupApplication,
-  );
+  const conversationStore = useConversationStore();
+  const { currentConversation } = storeToRefs(conversationStore);
 
-  useEffect(() => {
-    loginCheck();
-    setIMListener();
-    return () => {
-      disposeIMListener();
-    };
-  }, []);
+  // contact
+  const contactStore = useContactStore();
 
   const loginCheck = async () => {
     const IMToken = (await getIMToken()) as string;
     const IMUserID = (await getIMUserID()) as string;
     if (!IMToken || !IMUserID) {
       clearIMProfile();
-      navigate("/login");
+      router.push("/login");
       return;
     }
     tryLogin();
   };
 
   const tryLogin = async () => {
-    updateIsLogining(true);
+    userStore.updateIsLogining(true);
     const IMToken = (await getIMToken()) as string;
     const IMUserID = (await getIMUserID()) as string;
     try {
@@ -121,10 +69,10 @@ export function useGlobalEvent() {
     } catch (error) {
       console.error(error);
       if ((error as WsResponse).errCode !== 10102) {
-        navigate("/login");
+        router.push("/login");
       }
     }
-    updateIsLogining(false);
+    userStore.updateIsLogining(false);
   };
 
   const setIMListener = () => {
@@ -172,13 +120,13 @@ export function useGlobalEvent() {
   };
 
   const selfUpdateHandler = ({ data }: WSEvent<SelfUserInfo>) => {
-    updateSelfInfo(data);
+    userStore.updateSelfInfo(data);
   };
   const connectingHandler = () => {
-    updateConnectState("loading");
+    userStore.updateConnectState("loading");
   };
   const connectFailedHandler = ({ errCode, errMsg }: WSEvent) => {
-    updateConnectState("failed");
+    userStore.updateConnectState("failed");
     console.error("connectFailedHandler", errCode, errMsg);
 
     if (errCode === 705) {
@@ -186,7 +134,7 @@ export function useGlobalEvent() {
     }
   };
   const connectSuccessHandler = () => {
-    updateConnectState("success");
+    userStore.updateConnectState("success");
     console.log("connect success...");
   };
   const kickHandler = () => tryOut(t("toast.accountKicked"));
@@ -197,28 +145,28 @@ export function useGlobalEvent() {
       msg,
       error: msg,
       onClose: () => {
-        userLogout(true);
+        userStore.userLogout(true);
       },
     });
 
   // sync
   const syncStartHandler = ({ data }: WSEvent<boolean>) => {
-    updateSyncState("loading");
-    updateReinstallState(data);
+    userStore.updateSyncState("loading");
+    userStore.updateReinstallState(data);
   };
 
   const syncProgressHandler = ({ data }: WSEvent<number>) => {
-    updateProgressState(data);
+    userStore.updateProgressState(data);
   };
   const syncFinishHandler = () => {
-    updateSyncState("success");
-    getFriendListByReq();
-    getGroupListByReq();
-    getConversationListByReq(false);
-    getUnReadCountByReq();
+    userStore.updateSyncState("success");
+    contactStore.getFriendListByReq();
+    contactStore.getGroupListByReq();
+    conversationStore.getConversationListByReq(false);
+    conversationStore.getConversationListByReq();
   };
   const syncFailedHandler = () => {
-    updateSyncState("failed");
+    userStore.updateSyncState("failed");
     feedbackToast({ msg: t("toast.syncFailed"), error: t("toast.syncFailed") });
   };
 
@@ -253,23 +201,15 @@ export function useGlobalEvent() {
     switch (newServerMsg.sessionType) {
       case SessionType.Single:
         return (
-          newServerMsg.sendID ===
-            useConversationStore.getState().currentConversation?.userID ||
-          (newServerMsg.sendID === useUserStore.getState().selfInfo.userID &&
-            newServerMsg.recvID ===
-              useConversationStore.getState().currentConversation?.userID)
+          newServerMsg.sendID === currentConversation.value.userID ||
+          (newServerMsg.sendID === selfInfo.value.userID &&
+            newServerMsg.recvID === currentConversation.value.userID)
         );
       case SessionType.Group:
       case SessionType.WorkingGroup:
-        return (
-          newServerMsg.groupID ===
-          useConversationStore.getState().currentConversation?.groupID
-        );
+        return newServerMsg.groupID === currentConversation.value.groupID;
       case SessionType.Notification:
-        return (
-          newServerMsg.sendID ===
-          useConversationStore.getState().currentConversation?.userID
-        );
+        return newServerMsg.sendID === currentConversation.value.userID;
       default:
         return false;
     }
@@ -277,79 +217,79 @@ export function useGlobalEvent() {
 
   // conversation
   const conversationChnageHandler = ({ data }: WSEvent<ConversationItem[]>) => {
-    updateConversationList(data, "filter");
+    conversationStore.updateConversationList(data, "filter");
   };
   const newConversationHandler = ({ data }: WSEvent<ConversationItem[]>) => {
-    updateConversationList(data, "push");
+    conversationStore.updateConversationList(data, "push");
   };
   const totalUnreadChangeHandler = ({ data }: WSEvent<number>) => {
-    updateUnReadCount(data);
+    conversationStore.updateUnReadCount(data);
   };
 
   // friend
   const friednInfoChangeHandler = ({ data }: WSEvent<FriendUserItem>) => {
-    updateFriend(data);
+    contactStore.updateFriend(data);
   };
   const friednAddedHandler = ({ data }: WSEvent<FriendUserItem>) => {
-    pushNewFriend(data);
+    contactStore.pushNewFriend(data);
   };
   const friednDeletedHandler = ({ data }: WSEvent<FriendUserItem>) => {
-    updateFriend(data, true);
+    contactStore.updateFriend(data, true);
   };
 
   // blacklist
   const blackAddedHandler = ({ data }: WSEvent<BlackUserItem>) => {
-    pushNewBlack(data);
+    contactStore.pushNewBlack(data);
   };
   const blackDeletedHandler = ({ data }: WSEvent<BlackUserItem>) => {
-    updateBlack(data, true);
+    contactStore.updateBlack(data, true);
   };
 
   // group
   const joinedGroupAddedHandler = ({ data }: WSEvent<GroupItem>) => {
-    if (data.groupID === useConversationStore.getState().currentConversation?.groupID) {
-      updateCurrentGroupInfo(data);
-      // getCurrentMemberInGroupByReq(group.groupID);
+    if (data.groupID === currentConversation.value.groupID) {
+      conversationStore.updateCurrentGroupInfo(data);
+      // conversationStore.getCurrentMemberInGroupByReq(group.groupID);
     }
-    pushNewGroup(data);
+    contactStore.pushNewGroup(data);
   };
   const joinedGroupDeletedHandler = ({ data }: WSEvent<GroupItem>) => {
-    if (data.groupID === useConversationStore.getState().currentConversation?.groupID) {
-      getCurrentGroupInfoByReq(data.groupID);
-      getCurrentMemberInGroupByReq(data.groupID);
+    if (data.groupID === currentConversation.value.groupID) {
+      conversationStore.getCurrentGroupInfoByReq(data.groupID);
+      conversationStore.getCurrentMemberInGroupByReq(data.groupID);
     }
-    updateGroup(data, true);
+    contactStore.updateGroup(data, true);
   };
   const joinedGroupDismissHandler = ({ data }: WSEvent<GroupItem>) => {
-    if (data.groupID === useConversationStore.getState().currentConversation?.groupID) {
-      getCurrentMemberInGroupByReq(data.groupID);
+    if (data.groupID === currentConversation.value.groupID) {
+      conversationStore.getCurrentMemberInGroupByReq(data.groupID);
     }
   };
   const groupInfoChangedHandler = ({ data }: WSEvent<GroupItem>) => {
-    updateGroup(data);
-    if (data.groupID === useConversationStore.getState().currentConversation?.groupID) {
-      updateCurrentGroupInfo(data);
+    contactStore.updateGroup(data);
+    if (data.groupID === currentConversation.value.groupID) {
+      conversationStore.updateCurrentGroupInfo(data);
     }
   };
   const groupMemberAddedHandler = ({ data }: WSEvent<GroupMemberItem>) => {
     if (
-      data.groupID === useConversationStore.getState().currentConversation?.groupID &&
-      data.userID === useUserStore.getState().selfInfo.userID
+      data.groupID === currentConversation.value.groupID &&
+      data.userID === selfInfo.value.userID
     ) {
-      getCurrentMemberInGroupByReq(data.groupID);
+      conversationStore.getCurrentMemberInGroupByReq(data.groupID);
     }
   };
   const groupMemberDeletedHandler = ({ data }: WSEvent<GroupMemberItem>) => {
     if (
-      data.groupID === useConversationStore.getState().currentConversation?.groupID &&
-      data.userID === useUserStore.getState().selfInfo.userID
+      data.groupID === currentConversation.value.groupID &&
+      data.userID === selfInfo.value.userID
     ) {
-      getCurrentMemberInGroupByReq(data.groupID);
+      conversationStore.getCurrentMemberInGroupByReq(data.groupID);
     }
   };
   const groupMemberInfoChangedHandler = ({ data }: WSEvent<GroupMemberItem>) => {
-    if (data.groupID === useConversationStore.getState().currentConversation?.groupID) {
-      tryUpdateCurrentMemberInGroup(data);
+    if (data.groupID === currentConversation.value.groupID) {
+      conversationStore.tryUpdateCurrentMemberInGroup(data);
     }
   };
 
@@ -357,21 +297,21 @@ export function useGlobalEvent() {
   const friendApplicationProcessedHandler = ({
     data,
   }: WSEvent<FriendApplicationItem>) => {
-    const isRecv = data.toUserID === useUserStore.getState().selfInfo.userID;
+    const isRecv = data.toUserID === selfInfo.value.userID;
     if (isRecv) {
-      updateRecvFriendApplication(data);
+      contactStore.updateRecvFriendApplication(data);
     } else {
-      updateSendFriendApplication(data);
+      contactStore.updateSendFriendApplication(data);
     }
   };
   const groupApplicationProcessedHandler = ({
     data,
   }: WSEvent<GroupApplicationItem>) => {
-    const isRecv = data.userID !== useUserStore.getState().selfInfo.userID;
+    const isRecv = data.userID !== selfInfo.value.userID;
     if (isRecv) {
-      updateRecvGroupApplication(data);
+      contactStore.updateRecvGroupApplication(data);
     } else {
-      updateSendGroupApplication(data);
+      contactStore.updateSendGroupApplication(data);
     }
   };
 
@@ -417,4 +357,11 @@ export function useGlobalEvent() {
     IMSDK.off(CbEvents.OnGroupApplicationAccepted, groupApplicationProcessedHandler);
     IMSDK.off(CbEvents.OnGroupApplicationRejected, groupApplicationProcessedHandler);
   };
+
+  loginCheck();
+  setIMListener();
+
+  onUnmounted(() => {
+    disposeIMListener();
+  });
 }

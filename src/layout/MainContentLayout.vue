@@ -6,8 +6,12 @@ import { computed, toRefs } from "vue";
 
 import LeftNavBar from "./LeftNavBar/index.vue";
 import TopSearchBar from "./TopSearchBar/index.vue";
+import { useGlobalEvent } from "./useGlobalEven";
+
+useGlobalEvent();
 
 const userStore = useUserStore();
+const { updateAppSettings } = userStore;
 
 const { isLogining, progress, reinstall, syncState } = toRefs(userStore);
 

@@ -8,12 +8,12 @@ import { GroupSessionTypes } from "@/constants/im";
 import { useConversationStore, useUserStore } from "@/store";
 import { useContactStore } from "@/store/contact";
 
+import { MessageType, SessionType } from "@openim/wasm-client-sdk";
 import {
   ConversationItem,
   MessageItem,
   PublicUserItem,
 } from "@openim/wasm-client-sdk/lib/types/entity";
-import { MessageType, SessionType } from "@openim/wasm-client-sdk";
 import { isThisYear } from "date-fns";
 dayjs.extend(calendar);
 dayjs.extend(relativeTime);
@@ -55,7 +55,8 @@ const linkWrap = ({
 };
 
 export const notificationMessageFormat = (msg: MessageItem) => {
-  const selfID = useUserStore.getState().selfInfo.userID;
+  const userStore = useUserStore();
+  const selfID = userStore.selfInfo.userID;
   const getName = (user: PublicUserItem) => {
     return user.userID === selfID ? t("you") : user.nickname;
   };
@@ -187,7 +188,8 @@ export const parseBr = (text: string) => {
 
 export const formatMessageByType = (message?: MessageItem): string => {
   if (!message) return "";
-  const selfUserID = useUserStore.getState().selfInfo.userID;
+  const userStore = useUserStore();
+  const selfUserID = userStore.selfInfo.userID;
   const isSelf = (id: string) => id === selfUserID;
   const getName = (user: PublicUserItem) => {
     return user.userID === selfUserID ? t("you") : user.nickname;
@@ -268,26 +270,20 @@ export const formatMessageByType = (message?: MessageItem): string => {
 };
 
 export const initStore = () => {
-  const { getSelfInfoByReq } = useUserStore.getState();
-  const {
-    getBlackListByReq,
-    getRecvFriendApplicationListByReq,
-    getRecvGroupApplicationListByReq,
-    getSendFriendApplicationListByReq,
-    getSendGroupApplicationListByReq,
-  } = useContactStore.getState();
-  const { getConversationListByReq, getUnReadCountByReq } =
-    useConversationStore.getState();
+  const userStore = useUserStore();
+  userStore.getSelfInfoByReq();
 
-  getUnReadCountByReq();
-  getConversationListByReq();
-  getSelfInfoByReq();
-  getBlackListByReq();
-  getRecvFriendApplicationListByReq();
-  getRecvGroupApplicationListByReq();
-  getSendFriendApplicationListByReq();
-  getSendGroupApplicationListByReq();
-  getUnReadCountByReq();
+  const contactStore = useContactStore();
+  contactStore.getBlackListByReq();
+  contactStore.getRecvFriendApplicationListByReq();
+  contactStore.getRecvGroupApplicationListByReq();
+  contactStore.getSendGroupApplicationListByReq();
+  contactStore.getSendFriendApplicationListByReq();
+
+  const conversationStore = useConversationStore();
+  conversationStore.getUnReadCountByReq();
+  conversationStore.getConversationListByReq();
+  conversationStore.getUnReadCountByReq();
 };
 
 export const conversationSort = (conversationList: ConversationItem[]) => {

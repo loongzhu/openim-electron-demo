@@ -223,12 +223,14 @@ interface UpdateBusinessUserInfoParams {
 export const updateBusinessUserInfo = async (
   params: Partial<UpdateBusinessUserInfoParams>,
 ) => {
+  const userStore = useUserStore();
+
   const token = (await getChatToken()) as string;
   return request.post<unknown>(
     "/user/update",
     {
       ...params,
-      userID: useUserStore.getState().selfInfo?.userID,
+      userID: userStore?.selfInfo?.userID,
     },
     {
       headers: {

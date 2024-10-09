@@ -1,7 +1,7 @@
-import { App } from "antd";
-import type { MessageInstance } from "antd/es/message/interface";
-import type { ModalStaticFunctions } from "antd/es/modal/confirm";
-import type { NotificationInstance } from "antd/es/notification/interface";
+import { App } from "ant-design-vue";
+import type { MessageInstance } from "ant-design-vue/es/message/interface";
+import type { ModalStaticFunctions } from "ant-design-vue/es/modal/confirm";
+import type { NotificationInstance } from "ant-design-vue/es/notification/interface";
 
 let message: MessageInstance;
 let notification: NotificationInstance;
