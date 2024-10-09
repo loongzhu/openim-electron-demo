@@ -1,10 +1,10 @@
 <script setup lang="ts" name="index">
-import { ref, watch } from "vue";
-import { t } from "i18next";
+import { ref } from "vue";
 
+import WindowControlBar from "@/components/WindowControlBar/index.vue";
 import LeftBar from "./LeftBar.vue";
 import LoginForm from "./LoginForm.vue";
-import WindowControlBar from "@/components/WindowControlBar/index.vue";
+import RegisterForm from "./RegisterForm.vue";
 
 export type FormType = 0 | 2;
 
@@ -37,14 +37,7 @@ const updateLoginMethod = (method: "phone" | "email") => {
           v-model="loginMethod"
           @setFormType="setFormType"
         />
-        <div v-else>
-          {{ formType }}
-          <!-- <RegisterForm
-            v-if="formType === 0"
-            v-model="loginMethod"
-            @setFormType="setFormType"
-          /> -->
-        </div>
+        <RegisterForm v-else v-model="loginMethod" @setFormType="setFormType" />
         <!-- 
           {formType === 2 && (
             <RegisterForm loginMethod={loginMethod} setFormType={setFormType} />

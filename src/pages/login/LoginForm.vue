@@ -1,17 +1,8 @@
 <script setup lang="ts" name="LoginForm">
-import { Ref, toRefs, onMounted, reactive } from "vue";
 import { t } from "i18next";
+import { reactive } from "vue";
 
-import login_pc from "@/assets/images/login/login_pc.png";
-import login_qr from "@/assets/images/login/login_qr.png";
-import {
-  getEmail,
-  getPhoneNumber,
-  setAreaCode,
-  setEmail,
-  setIMProfile,
-  setPhoneNumber,
-} from "@/utils/storage";
+import { getEmail, getPhoneNumber } from "@/utils/storage";
 
 import { areaCode } from "./areaCode";
 
@@ -54,6 +45,7 @@ function setFormType(type: FormType) {
         v-model="form.phoneNumber"
         :placeholder="t('toast.inputPhoneNumber')"
         class="input-with-select"
+        clearable
       >
         <template #prepend>
           <el-select class="!w-28" v-model="form.areaCode">
@@ -74,6 +66,8 @@ function setFormType(type: FormType) {
         v-model="form.password"
         type="password"
         :placeholder="t('toast.inputPassword')"
+        clearable
+        show-password
       />
     </el-form-item>
 
