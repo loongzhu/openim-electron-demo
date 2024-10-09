@@ -76,12 +76,15 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.1.4",
+    "@ant-design/icons-vue": "^7.0.1",
     "@ckeditor/ckeditor5-react": "^8.0.0",
+    "@element-plus/icons-vue": "^2.3.1",
     "@livekit/components-react": "^2.3.1",
     "@livekit/components-styles": "^1.0.12",
     "@openim/wasm-client-sdk": "^3.8.2",
     "@vueuse/core": "^11.1.0",
     "ahooks": "^3.7.7",
+    "ant-design-vue": "^4.2.5",
     "antd": "5.10.0",
     "axios": "^1.4.0",
     "ckeditor5": "^43.0.0",
@@ -111,6 +114,7 @@
     "twemoji": "14.0.1",
     "uuid": "^9.0.1",
     "vue": "^3.5.11",
+    "vue-query": "^1.26.0",
     "vue-router": "^4.4.5",
     "xgplayer": "^3.0.5",
     "zustand": "^4.3.3"
