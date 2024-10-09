@@ -17,7 +17,12 @@ module.exports = {
     sourceType: "module",
     project: ["./tsconfig.json"],
   },
-  plugins: ["vue", "@typescript-eslint", "prettier", "simple-import-sort"],
+  plugins: [
+    "eslint-plugin-vue",
+    "@typescript-eslint",
+    "prettier",
+    "simple-import-sort",
+  ],
   rules: {
     eqeqeq: "error",
     "no-else-return": "error",
