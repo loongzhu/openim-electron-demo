@@ -1,8 +1,18 @@
 <script setup lang="ts" name="LoginForm">
 import { t } from "i18next";
+import md5 from "md5";
 import { reactive } from "vue";
+import { useRouter } from "vue-router";
 
-import { getEmail, getPhoneNumber } from "@/utils/storage";
+import { useLogin } from "@/api/login";
+import {
+  getEmail,
+  getPhoneNumber,
+  setAreaCode,
+  setEmail,
+  setIMProfile,
+  setPhoneNumber,
+} from "@/utils/storage";
 
 import { areaCode } from "./areaCode";
 
@@ -15,14 +25,40 @@ const emits = defineEmits<{
   setFormType: (type: FormType) => void;
 }>();
 
+const router = useRouter();
+
 const loginMethod = defineModel<"phone" | "email">();
 
-const form = reactive({
+const rules = reactive({
+  email: [{ required: true, type: "email", message: t("toast.inputCorrectEmail") }],
+});
+
+const form = reactive<API.Login.LoginParams>({
   areaCode: "+86",
   phoneNumber: getPhoneNumber() ?? "",
   email: getEmail() ?? "",
   password: "",
 });
+
+const { mutate: login, isLoading: loginLoading } = useLogin();
+
+const onFinish = (params: API.Login.LoginParams) => {
+  if (params.phoneNumber) {
+    setAreaCode(params.areaCode);
+    setPhoneNumber(params.phoneNumber);
+  }
+  if (params.email) {
+    setEmail(params.email);
+  }
+  params.password = md5(params.password);
+  login(params, {
+    onSuccess: (data) => {
+      const { chatToken, imToken, userID } = data.data;
+      setIMProfile({ chatToken, imToken, userID });
+      router.push("/chat");
+    },
+  });
+};
 
 function setFormType(type: FormType) {
   emits("setFormType", type);
@@ -39,7 +75,7 @@ function setFormType(type: FormType) {
     <el-tab-pane :label="t('placeholder.email')" name="email"></el-tab-pane>
   </el-tabs>
 
-  <el-form :model="form" label-width="auto" label-position="top">
+  <el-form :model="form" :rules="rules" label-width="auto" label-position="top">
     <el-form-item v-if="loginMethod === 'phone'" :label="t('placeholder.phoneNumber')">
       <el-input
         v-model="form.phoneNumber"
@@ -58,7 +94,7 @@ function setFormType(type: FormType) {
         </template>
       </el-input>
     </el-form-item>
-    <el-form-item v-else :label="t('placeholder.email')">
+    <el-form-item v-else :label="t('placeholder.email')" prop="email">
       <el-input v-model="form.email" :placeholder="t('toast.inputEmail')" />
     </el-form-item>
     <el-form-item :label="t('placeholder.password')">
@@ -72,7 +108,14 @@ function setFormType(type: FormType) {
     </el-form-item>
 
     <el-form-item class="mb-4">
-      <el-button class="w-full" type="primary">{{ t("placeholder.login") }}</el-button>
+      <el-button
+        class="w-full"
+        type="primary"
+        @click="onFinish(form)"
+        :loading="loginLoading"
+      >
+        {{ t("placeholder.login") }}
+      </el-button>
     </el-form-item>
     <div class="flex flex-row items-center justify-center">
       <span class="text-sm text-gray-400">

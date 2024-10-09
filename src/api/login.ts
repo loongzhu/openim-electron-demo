@@ -1,6 +1,6 @@
 import type { MessageReceiveOptType } from "@openim/wasm-client-sdk";
-import { useMutation, useQuery } from "react-query";
 import { v4 as uuidv4 } from "uuid";
+import { useMutation } from "vue-query";
 
 import { getChatUrl } from "@/config";
 import { useUserStore } from "@/store";
