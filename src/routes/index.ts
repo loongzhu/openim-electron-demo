@@ -4,8 +4,27 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "index",
-    // redirect: "/login",
+    redirect: "/login",
+  },
+
+  {
+    path: "/login",
+    name: "login",
     component: () => import("../pages/login/index.vue"),
+  },
+
+  {
+    path: "/",
+    name: "layout",
+    component: () => import("@/layout/MainContentLayout.vue"),
+    children: [
+      {
+        path: "/chat",
+        name: "chat",
+
+        component: () => import("../pages/chat/index.vue"),
+      },
+    ],
   },
   // {
   //   path: "/layout",
