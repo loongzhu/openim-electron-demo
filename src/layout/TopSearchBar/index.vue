@@ -77,7 +77,7 @@ const actionClick = (idx: number) => {
         trigger="click"
         placement="bottom"
         :open="actionVisible"
-        @openChange="(vis) => setActionVisible(vis)"
+        @open-change="(vis) => setActionVisible(vis)"
       >
         <img
           class="app-no-drag ml-8 cursor-pointer"
@@ -90,12 +90,14 @@ const actionClick = (idx: number) => {
           <div class="p-1">
             <div
               v-for="item in actionMenuList"
-              class="flex cursor-pointer items-center rounded px-3 py-2 text-xs hover:bg-[var(--primary-active)]"
               :key="item.idx"
+              class="flex cursor-pointer items-center rounded px-3 py-2 text-xs hover:bg-[var(--primary-active)]"
               @click="() => actionClick(item.idx)"
             >
               <img width="20" :src="item.icon" alt="call_video" />
-              <div class="ml-3">{{ item.title }}</div>
+              <div class="ml-3">
+                {{ item.title }}
+              </div>
             </div>
           </div>
         </template>

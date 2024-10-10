@@ -1,8 +1,9 @@
 <script setup lang="ts" name="MainContentLayout">
-import { useUserStore } from "@/store";
 import { Layout, Spin } from "ant-design-vue";
 import { t } from "i18next";
 import { computed, toRefs } from "vue";
+
+import { useUserStore } from "@/store";
 
 import LeftNavBar from "./LeftNavBar/index.vue";
 import TopSearchBar from "./TopSearchBar/index.vue";
@@ -30,7 +31,7 @@ const showLockLoading = computed(() => {
       <TopSearchBar />
       <Layout>
         <LeftNavBar />
-        <router-view></router-view>
+        <router-view />
       </Layout>
     </Layout>
   </Spin>

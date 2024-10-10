@@ -41,7 +41,9 @@ const count = computed(() => {
       @click="tryNavigate"
     >
       <img width="20" :src="isActive ? icon_active : icon" alt="" />
-      <div className="mt-1 text-xs text-gray-500">{{ title }}</div>
+      <div className="mt-1 text-xs text-gray-500">
+        {{ title }}
+      </div>
     </div>
   </Badge>
 </template>
