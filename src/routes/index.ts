@@ -21,8 +21,19 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/chat",
         name: "chat",
-
         component: () => import("../pages/chat/index.vue"),
+        children: [
+          {
+            path: "",
+            name: "emptyChat",
+            component: () => import("../pages/chat/EmptyChat.vue"),
+          },
+          {
+            path: ":conversationID",
+            name: "queryChat",
+            component: () => import("../pages/chat/QueryChat/index.vue"),
+          },
+        ],
       },
     ],
   },
