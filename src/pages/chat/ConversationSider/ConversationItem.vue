@@ -55,6 +55,10 @@ const latestMessageTime = computed(() => {
 <template>
   <div
     class="conversation-item border"
+    :class="{
+      'conversation-item-active': isActive || conversation.isPinned,
+      'conversation-item-pinned': conversation.isPinned,
+    }"
     style="border-color: transparent"
     @click="toSpecifiedConversation"
   >

@@ -9,7 +9,7 @@ import sync_error from "@/assets/images/common/sync_error.png";
 
 const userStore = useUserStore();
 
-const { syncState, connectState, reinstall } = storeToRefs(userStore);
+const { syncState, connectState } = storeToRefs(userStore);
 
 const showLoading = computed(
   () => syncState.value === "loading" || connectState.value === "loading",
@@ -32,7 +32,7 @@ const errorTip = computed(() => {
 
 <template>
   <div
-    v-show="!reinstall"
+    v-show="showLoading || showFailed"
     class="flex h-6 items-center justify-center"
     :class="{
       'bg-[#0089FF] bg-opacity-10': showLoading,

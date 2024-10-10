@@ -1,6 +1,10 @@
 .conversation-item {
   @apply relative my-1 flex items-center rounded-md p-2 hover:bg-[var(--primary-active)];
 
+  &-active {
+    @apply bg-[var(--primary-active)];
+  }
+
   &-pined {
     &::after {
       content: "";
