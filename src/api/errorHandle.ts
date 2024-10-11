@@ -1,5 +1,6 @@
-import { message } from "@/AntdGlobalComp";
+// import { message } from "@/AntdGlobalComp";
 import { ErrCodeMap } from "@/constants";
+import { useGlobalStore } from "@/store/global";
 
 interface ErrorData {
   errCode: number;
@@ -8,7 +9,9 @@ interface ErrorData {
 
 export const errorHandle = (err: unknown) => {
   const errData = err as ErrorData;
+  const globalStore = useGlobalStore();
   if (errData.errMsg) {
-    message.error(ErrCodeMap[errData.errCode] || errData.errMsg);
+    // message.error(ErrCodeMap[errData.errCode] || errData.errMsg);
+    globalStore.message.error(ErrCodeMap[errData.errCode] || errData.errMsg);
   }
 };

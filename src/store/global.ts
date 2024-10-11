@@ -6,14 +6,15 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useGlobalStore = defineStore("global", () => {
-  const message: MessageInstance = ref();
-  const notification: NotificationInstance = ref();
-  const modal: Omit<ModalStaticFunctions, "warn"> = ref();
+  const message = ref<MessageInstance>();
+  const notification = ref<NotificationInstance>();
+  const modal = ref<Omit<ModalStaticFunctions, "warn">>();
   (() => {
     const staticFunction = App.useApp();
     message.value = staticFunction.message;
     modal.value = staticFunction.modal;
     notification.value = staticFunction.notification;
+    console.log("message", App.useApp().message);
   })();
 
   return { message, notification, modal };

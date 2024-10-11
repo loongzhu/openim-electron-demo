@@ -8,6 +8,7 @@ import ElementPlus from "element-plus";
 import { createPinia } from "pinia";
 import { Component, createApp } from "vue";
 import { VueQueryPlugin } from "vue-query";
+import { antdvProvide } from "./store/antdv-plugin";
 
 import App from "./App.vue";
 import router from "./routes";
@@ -21,6 +22,7 @@ app.use(router);
 app.use(ElementPlus);
 app.use(VueQueryPlugin);
 app.use(Antd);
+app.use(antdvProvide); // <- 注册
 
 app.mount("#app");
 

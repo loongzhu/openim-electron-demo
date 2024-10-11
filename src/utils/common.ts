@@ -1,6 +1,5 @@
+import { useGlobalStore } from "@/store";
 import { t } from "i18next";
-
-import { message } from "../AntdGlobalComp";
 
 type FeedbackToastParams = {
   msg?: string | null;
@@ -22,9 +21,12 @@ export const feedbackToast = (config?: FeedbackToastParams) => {
       (error as FeedbackError)?.errDlt ??
       t("toast.accessFailed");
   }
-  message.open({
+
+  const globalStore = useGlobalStore();
+
+  globalStore.message({
     type: error ? "error" : "success",
-    content: msg ?? content ?? t("toast.accessSuccess"),
+    message: msg ?? content ?? t("toast.accessSuccess"),
     duration,
     onClose,
   });
